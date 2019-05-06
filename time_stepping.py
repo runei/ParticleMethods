@@ -49,6 +49,25 @@ def rungeKutta4(y0, dt, tn):
 	y = np.append(y, rungeKutta4Eq(y, (tn - t)))
 	return y[-1]
 
+def implicitEulerEq(y, dt):
+	#implicit euler
+	# y(t+1) = y(t) + dt * f(y(t+1))
+	# y(t+1) = y(t) + dt * (-2y(t+1))
+	# y(t+1) - (dt * (-2y(t+1))) = y(t)
+	# y(t+1) + dt * 2y(t+1)) = y(t)
+	# y(t+1) * (1 + dt * 2) = y(t)
+	# y(t+1) = y(t) / (1 + dt * 2)
+	return y[-1] / (1.0 + dt * 2.0)
+
+def implicitEuler(y0, dt, tn):
+	y = np.array([y0])
+	t = 0.0
+	while t + dt < tn:
+		y = np.append(y, implicitEulerEq(y, dt))
+		t += dt
+	y = np.append(y, implicitEulerEq(y, (tn - t)))
+	return y[-1]
+
 def error(n1, n2):
 	return math.fabs(n1 - n2)
 
@@ -65,10 +84,12 @@ def main():
 	exp_euler_error = np.array([])
 	leapfrog_error = np.array([])
 	rk4_error = np.array([])
+	imp_euler_error = np.array([])
 	for dt in dt_list:
 		exp_euler_error = np.append(exp_euler_error, error(explicitEuler(y0, dt, tn), analytical_answer))
 		leapfrog_error = np.append(leapfrog_error, error(leapfrog(y0, dt, tn), analytical_answer))
 		rk4_error = np.append(rk4_error, error(rungeKutta4(y0, dt, tn), analytical_answer))
+		imp_euler_error = np.append(imp_euler_error, error(implicitEuler(y0, dt, tn), analytical_answer))
 
 	plt.subplot(2, 2, 1)
 	plt.plot(dt_list, exp_euler_error)
@@ -81,6 +102,10 @@ def main():
 	plt.subplot(2, 2, 3)
 	plt.plot(dt_list, rk4_error)
 	plt.title("rk4")
+
+	plt.subplot(2, 2, 4)
+	plt.plot(dt_list, imp_euler_error)
+	plt.title("imp euler")
 
 	# plt.legend(['exp euler', 'leapfrog', 'rk4'])
 	plt.show()
