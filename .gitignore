@@ -2,3 +2,4 @@
 *.gnu
 particle_methods
 particle_interactions
+*.pyc
